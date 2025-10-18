@@ -1,5 +1,5 @@
 <?php
-require_once "koneksi.php";
+require_once "config/koneksi.php";
 
 $id = isset($_GET['edit']) ? $_GET['edit'] : "";
 $selectCategory = mysqli_query($koneksi, "SELECT category_name FROM categories WHERE id='$id'");

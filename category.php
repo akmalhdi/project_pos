@@ -1,10 +1,10 @@
 <?php
-require_once "koneksi.php";
+require_once "config/koneksi.php";
 $q_categories = mysqli_query($koneksi, "SELECT * FROM categories");
 $categories = mysqli_fetch_all($q_categories, MYSQLI_ASSOC);
 
 
-if(isset($_GET['delete'])){
+if (isset($_GET['delete'])) {
     $id = $_GET['delete'];
     $q_delete = mysqli_query($koneksi, "DELETE FROM categories WHERE id = '$id'");
     header("location:category.php");
@@ -12,14 +12,13 @@ if(isset($_GET['delete'])){
 
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Data User</title>
 </head>
 
 <body>

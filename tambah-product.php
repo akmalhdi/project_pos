@@ -1,5 +1,5 @@
 <?php
-require_once "koneksi.php";
+require_once "config/koneksi.php";
 
 $selectCategory = mysqli_query($koneksi, "SELECT * FROM categories");
 $categories = mysqli_fetch_all($selectCategory, MYSQLI_ASSOC);
@@ -16,6 +16,9 @@ $categories = mysqli_fetch_all($selectCategory, MYSQLI_ASSOC);
 
 <body>
     <h1>Tambah Product</h1>
+    <div align="right">
+        <a href="product.php">Back</a>
+    </div>
     <form action="" method="post" enctype="multipart/form-data">
         <label for="">Category Name</label><br>
         <select name="category_id" required>
