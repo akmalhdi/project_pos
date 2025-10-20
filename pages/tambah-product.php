@@ -1,8 +1,11 @@
 <?php
 
 $id = isset($_GET['edit']) ? $_GET['edit'] : "";
-$selectCategory = mysqli_query($koneksi, "SELECT * FROM categories");
-$categories = mysqli_fetch_all($selectCategory, MYSQLI_ASSOC);
+$q_select = mysqli_query($koneksi, "SELECT * FROM products WHERE id = '$id'");
+$product = mysqli_fetch_assoc($q_select);
+$queryCategory = mysqli_query($koneksi, 'SELECT * FROM categories');
+$categories = mysqli_fetch_all($queryCategory, MYSQLI_ASSOC);
+$rowEdit = mysqli_fetch_assoc($q_select);
 
 if (isset($_POST['update'])) {
     $c_id = $_POST['category_id'];
@@ -11,9 +14,32 @@ if (isset($_POST['update'])) {
     $p_description = $_POST['product_description'];
     $p_photo = $_FILES['product_photo'];
 
-    $update = mysqli_query($koneksi, "UPDATE products SET category_id = '$c_id', product_name = '$p_name', product_price = '$p_price', product_description = '$p_description', product_photo = '$$p_photo' WHERE id='$id' ");
+    // tentukan path foto: kalau ada upload baru, pindah dan gunakan itu;
+    // kalau tidak, pakai foto lama dari $rowEdit
+    if ($p_photo['error'] === UPLOAD_ERR_OK) {
+        $name = uniqid() . '-' . basename($p_photo['name']);
+        $filePath = 'assets/uploads/' . $name;
+        move_uploaded_file($p_photo['tmp_name'], $filePath);
+    } else {
+        // fallback ke foto lama
+        $filePath = $rowEdit['product_photo'];
+    }
 
-    header("location:?page=product&ubah=berhasil");
+    // sekarang product_photo sudah string path, bukan array
+    $update = mysqli_query(
+        $koneksi,
+        "UPDATE products SET
+            category_id      = '$c_id',
+            product_name     = '$p_name',
+            product_price    = '$p_price',
+            product_description = '$p_description',
+            product_photo    = '$filePath'
+         WHERE id = '$id'
+        "
+    );
+
+    header('Location:?page=product&ubah=berhasil');
+    exit;
 }
 
 if (isset($_POST['simpan'])) {
@@ -53,16 +79,18 @@ if (isset($_POST['simpan'])) {
                     <div class="mb-3">
                         <label class="form-label" for="">Category Name</label>
                         <select class="form-select" name="category_id" required>
-                            <option value="">-- Pilih Kategori --</option>
+                            <option>-- Select Category --</option>
                             <?php
                             foreach ($categories as $c) {
+                                $selected = (isset($product['category_id']) && $product['category_id'] == $c['id']) ? 'selected' : '';
                             ?>
-                                <option value="<?php echo $c['id'] ?>">
+                                <option value="<?php echo $c['id'] ?>" <?php echo $selected ?>>
                                     <?php echo $c['category_name'] ?>
                                 </option>
                             <?php
                             }
                             ?>
+
                         </select>
                     </div>
 
@@ -70,7 +98,8 @@ if (isset($_POST['simpan'])) {
                         <label for="" class="form-label">
                             Product Name
                         </label>
-                        <input type="text" class="form-control" name="product_name" required>
+                        <input type="text" class="form-control" name="product_name"
+                            value="<?php echo isset($_GET['edit']) ? $product['product_name'] : '' ?>" required>
                     </div>
 
                     <div class="mb-3">
@@ -78,23 +107,28 @@ if (isset($_POST['simpan'])) {
                             Photo
                         </label>
                         <input type="file" class="form-control" name="product_photo">
+                        <img src="<?php echo isset($_GET['edit']) ? $product['product_photo'] : '' ?>" class="w-50 mt-1">
                     </div>
 
                     <div class="mb-3">
                         <label for="" class="form-label">
                             Product Price
                         </label>
-                        <input type="number" class="form-control" name="product_price" required>
+                        <input type="number" class="form-control" name="product_price"
+                            value="<?php echo isset($_GET['edit']) ? $product['product_price'] : '' ?>" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="" class="form-label">
                             Product Description
                         </label>
-                        <textarea type="text" class="form-control" name="product_description" cols="30" rows="5"></textarea>
+                        <textarea type="text" class="form-control" name="product_description" cols="30" rows="5"><?php echo isset($_GET['edit']) ? $product['product_description'] : '' ?></textarea>
                     </div>
 
-                    <button type="submit" name="simpan" class="btn btn-primary btn-sm mt-3">Add</button>
+                    <button type="submit" class="btn btn-primary btn-sm mt-3"
+                        name="<?php echo isset($_GET['edit']) ? 'update' : 'simpan' ?>">
+                        <?php echo isset($_GET['edit']) ? 'Edit' : 'Create' ?>
+                    </button>
 
                 </form>
             </div>
