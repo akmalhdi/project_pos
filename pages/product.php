@@ -3,8 +3,6 @@
 $p_query = mysqli_query($koneksi, "SELECT * FROM products");
 $products = mysqli_fetch_all($p_query, MYSQLI_ASSOC);
 
-
-
 ?>
 
 <div class="row">
@@ -37,8 +35,12 @@ $products = mysqli_fetch_all($p_query, MYSQLI_ASSOC);
                             <td><?php echo $key + 1 ?></td>
                             <td><?php echo $value['category_id'] ?></td>
                             <td><?php echo $value['product_name'] ?></td>
-                            <td><?php echo $value['product_photo'] ?></td>
-                            <td><?php echo "Rp." . number_format($value['product_price'], 2, ",", ".") ?></td>
+                            <td>
+                                <img src="<?php echo $value['product_photo'] ?>" width="115" height="100">
+                            </td>
+                            <td>
+                                <?php echo "Rp. " . number_format($value['product_price'], 2, ",", ".") ?>
+                            </td>
                             <td><?php echo $value['product_description'] ?></td>
                         </tr>
                     <?php

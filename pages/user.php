@@ -21,10 +21,12 @@ if (isset($_GET['delete'])) {
 <div class="row">
     <div class="col-sm-12">
         <div class="card">
-            <div class="card-body">
+            <div class="card-header">
                 <h3 class="card-title">
                     Data User
                 </h3>
+            </div>
+            <div class="card-body mt-3">
                 <div class="mb-3" align="right">
                     <a href="?page=tambah-user" class="btn btn-primary btn-sm">
                         <i class="bi bi-plus-circle"></i> Add User
