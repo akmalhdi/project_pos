@@ -1,24 +1,37 @@
 <?php
 
-    $selectCategory = mysqli_query($koneksi, "SELECT * FROM categories");
-    $categories = mysqli_fetch_all($selectCategory, MYSQLI_ASSOC);
+$id = isset($_GET['edit']) ? $_GET['edit'] : "";
+$selectCategory = mysqli_query($koneksi, "SELECT * FROM categories");
+$categories = mysqli_fetch_all($selectCategory, MYSQLI_ASSOC);
 
-    if(isset($_POST['simpan'])){
-        $c_id = $_POST['category_id'];
-        $p_name = $_POST['product_name'];
-        $p_price = $_POST['product_price'];
-        $p_description = $_POST['product_description'];
-        $p_photo = $_FILES['product_photo'];
+if (isset($_POST['update'])) {
+    $c_id = $_POST['category_id'];
+    $p_name = $_POST['product_name'];
+    $p_price = $_POST['product_price'];
+    $p_description = $_POST['product_description'];
+    $p_photo = $_FILES['product_photo'];
 
-        $filePath = "assets/uploads/" . $p_photo['name'];
-        move_uploaded_file($p_photo['tmp_name'], $filePath);
+    $update = mysqli_query($koneksi, "UPDATE products SET category_id = '$c_id', product_name = '$p_name', product_price = '$p_price', product_description = '$p_description', product_photo = '$$p_photo' WHERE id='$id' ");
 
-        $q_product = mysqli_query($koneksi, "INSERT INTO products (category_id, product_name, product_price, product_description, product_photo) VALUES ('$c_id', '$p_name', '$p_price', '$p_description', '$filePath')");
+    header("location:?page=product&ubah=berhasil");
+}
 
-        if($q_product){
-            header("location:?page=product&tambah=berhasil");
-        }
+if (isset($_POST['simpan'])) {
+    $c_id = $_POST['category_id'];
+    $p_name = $_POST['product_name'];
+    $p_price = $_POST['product_price'];
+    $p_description = $_POST['product_description'];
+    $p_photo = $_FILES['product_photo'];
+
+    $filePath = "assets/uploads/" . uniqid() . "-" . $p_photo['name'];
+    move_uploaded_file($p_photo['tmp_name'], $filePath);
+
+    $q_product = mysqli_query($koneksi, "INSERT INTO products (category_id, product_name, product_price, product_description, product_photo) VALUES ('$c_id', '$p_name', '$p_price', '$p_description', '$filePath')");
+
+    if ($q_product) {
+        header("location:?page=product&tambah=berhasil");
     }
+}
 
 ?>
 <div class="row">
@@ -27,7 +40,7 @@
             <div class="card-header">
                 <div class="card-title">
                     <h3>
-                        Add Product
+                        <?php echo isset($_GET['edit']) ? 'Update' : 'Add' ?> Product
                     </h3>
                 </div>
             </div>
