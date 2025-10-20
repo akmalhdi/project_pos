@@ -3,7 +3,7 @@
 // include_once
 // require_once
 // require
-require_once "config/koneksi.php";
+// require_once "config/koneksi.php";
 
 $query = mysqli_query($koneksi, "SELECT r.name AS role_name, u.* FROM users AS u LEFT Join roles AS r ON r.id = u.role_id WHERE u.deleted_at IS NOT NULL ORDER BY u.id");
 
@@ -14,14 +14,14 @@ if (isset($_GET['delete'])) {
     $id = $_GET['delete'];
     $delete = mysqli_query($koneksi, "DELETE FROM users Where id='$id'");
     // redirect
-    header("location:user-restore.php?hapus=berhasil");
+    header("location:?page=user-restore&hapus=berhasil");
 }
 
 // disini parameter restore
 if (isset($_GET['restore'])) {
     $id = $_GET['restore'];
     $restore = mysqli_query($koneksi, "UPDATE users SET deleted_at=null WHERE id='$id'");
-    header("location:user.php?restore=berhasil");
+    header("location:?page=user&restore=berhasil");
 }
 ?>
 
@@ -37,10 +37,11 @@ if (isset($_GET['restore'])) {
 <body>
     <h1>Restore Data User</h1>
     <div align="right">
-        <a href="user.php">Back</a>
+        <a href="?page=user" class="btn btn-primary btn-sm mb-3">
+            Back
+        </a>
     </div>
-    <br>
-    <table class="table" border="2" width="100%">
+    <table class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th>No</th>
@@ -58,12 +59,15 @@ if (isset($_GET['restore'])) {
                     <td><?php echo $value['email'] ?></td>
                     <td><?php echo $value['role_name'] ?></td>
                     <td>
-                        <a onclick="return confirm('Apakah anda yakin akan merestore data ini?')"
-                            href="user-restore.php?restore=<?php echo $value['id'] ?>">Restore Data</a> |
+                        <a class="btn btn-warning btn-sm" onclick="return confirm('Apakah anda yakin akan merestore data ini?')"
+                            href="?page=user-restore&restore=<?php echo $value['id'] ?>">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </a>
 
-                        <a onclick="return confirm('Apakah anda yakin akan menghapus data ini?')"
-                            href="user-restore.php?delete=<?php echo $value['id'] ?>">
-                            Delete Permanent</a>
+                        <a class="btn btn-danger btn-sm" onclick="return confirm('Apakah anda yakin akan menghapus permanent data ini?')"
+                            href="?page=user-restore&delete=<?php echo $value['id'] ?>">
+                            <i class="bi bi-trash"></i>
+                        </a>
                     </td>
                 </tr>
             <?php

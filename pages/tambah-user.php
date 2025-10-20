@@ -17,7 +17,7 @@ if (isset($_POST['update'])) {
     }
 
     if ($query) {
-        header("location:user.php?ubah=berhasil");
+        header("location:?page=user&ubah=berhasil");
     }
 }
 
@@ -30,7 +30,7 @@ if (isset($_POST['simpan'])) {
     $query = mysqli_query($koneksi, "INSERT INTO users (name, email, password, role_id) values ('$name', '$email', '$password', '$role_id')");
 
     if ($query) {
-        header("location:user.php?tambah=berhasil");
+        header("location:?page=user&tambah=berhasil");
     }
 }
 

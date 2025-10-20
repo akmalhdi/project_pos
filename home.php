@@ -1,6 +1,7 @@
 <?php
 
 session_start();
+ob_start();
 
 include "include/functions.php";
 include "config/koneksi.php";
