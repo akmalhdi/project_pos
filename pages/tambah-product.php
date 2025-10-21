@@ -7,9 +7,6 @@ $id = isset($_GET['edit']) ? $_GET['edit'] : "";
 $q_select = mysqli_query($koneksi, "SELECT * FROM products WHERE id = '$id'");
 $product = mysqli_fetch_assoc($q_select);
 
-$r_select = mysqli_query($koneksi, "SELECT * FROM products WHERE id = '$id'");
-$rowEdit = mysqli_fetch_assoc($r_select);
-
 if (isset($_POST['update'])) {
     $c_id = $_POST['category_id'];
     $p_name = $_POST['product_name'];
@@ -17,16 +14,19 @@ if (isset($_POST['update'])) {
     $p_description = $_POST['product_description'];
     $p_photo = $_FILES['product_photo'];
 
-    // tentukan path foto: kalau ada upload baru, pindah dan gunakan itu;
-    // kalau tidak, pakai foto lama dari $rowEdit
-    if ($p_photo['error'] === UPLOAD_ERR_OK) {
-        $name = uniqid() . '-' . basename($p_photo['name']);
-        $filePath = 'assets/uploads/' . $name;
+    $cek_foto = mysqli_query($koneksi, "SELECT product_photo FROM products WHERE id = '$id'");
+    $row = mysqli_fetch_assoc($cek_foto);
+    $oldFile = $row['product_photo'];
+
+    $filePath = $oldFile;
+    if(!empty($p_photo['name'])) {
+        if(file_exists($oldFile)){
+            unlink($oldFile);
+        }
+        $filePath = "assets/uploads/" . uniqid() . "-" . $p_photo['name'];
         move_uploaded_file($p_photo['tmp_name'], $filePath);
-    } else {
-        // fallback ke foto lama
-        $filePath = $rowEdit['product_photo'];
     }
+
 
     // sekarang product_photo sudah string path, bukan array
     $update = mysqli_query(
@@ -85,9 +85,8 @@ if (isset($_POST['simpan'])) {
                             <option>-- Select Category --</option>
                             <?php
                             foreach ($categories as $c) {
-                                $selected = (isset($product['category_id']) && $product['category_id'] == $c['id']) ? 'selected' : '';
                             ?>
-                                <option value="<?php echo $c['id'] ?>" <?php echo $selected ?>>
+                                <option <?php echo isset($_GET['edit']) && $product['category_id'] == $c['id'] ? 'selected' : '' ?> value="<?php echo $c['id'] ?>">
                                     <?php echo $c['category_name'] ?>
                                 </option>
                             <?php
@@ -109,7 +108,7 @@ if (isset($_POST['simpan'])) {
                             Photo
                         </label>
                         <input type="file" class="form-control" name="product_photo">
-                        <img src="<?php echo $product['product_photo'] ?? '' ?>" class="w-50 mt-1">
+                        <img src="<?php echo $product['product_photo'] ?? '' ?>" class="w-40 mt-1">
                     </div>
 
                     <div class="mb-3">
