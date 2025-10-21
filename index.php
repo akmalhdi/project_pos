@@ -9,6 +9,7 @@
         // trim berfungsi untuk menghilangkan inputan spasi dalam inputan email/pass
         $email = trim($_POST['email']);
         $password = trim($_POST['password']);
+        $sha1 = sha1($password);
         
         $query = mysqli_query($koneksi, "SELECT * FROM users WHERE email = '$email'");
         
@@ -19,7 +20,7 @@
             $user = mysqli_fetch_assoc($query);
 
             // jika password yang diinput user sama dengan yang ada di table
-            if ($password === $user['password']) {
+            if ($sha1 === $user['password']) {
                 $_SESSION['ID'] = $user['id'];
                 $_SESSION['NAME'] = $user['name'];
                 header("location:home.php");

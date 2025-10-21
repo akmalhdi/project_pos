@@ -1,11 +1,14 @@
 <?php
 
+$queryCategory = mysqli_query($koneksi, 'SELECT * FROM categories');
+$categories = mysqli_fetch_all($queryCategory, MYSQLI_ASSOC);
+
 $id = isset($_GET['edit']) ? $_GET['edit'] : "";
 $q_select = mysqli_query($koneksi, "SELECT * FROM products WHERE id = '$id'");
 $product = mysqli_fetch_assoc($q_select);
-$queryCategory = mysqli_query($koneksi, 'SELECT * FROM categories');
-$categories = mysqli_fetch_all($queryCategory, MYSQLI_ASSOC);
-$rowEdit = mysqli_fetch_assoc($q_select);
+
+$r_select = mysqli_query($koneksi, "SELECT * FROM products WHERE id = '$id'");
+$rowEdit = mysqli_fetch_assoc($r_select);
 
 if (isset($_POST['update'])) {
     $c_id = $_POST['category_id'];
@@ -90,7 +93,6 @@ if (isset($_POST['simpan'])) {
                             <?php
                             }
                             ?>
-
                         </select>
                     </div>
 
@@ -99,7 +101,7 @@ if (isset($_POST['simpan'])) {
                             Product Name
                         </label>
                         <input type="text" class="form-control" name="product_name"
-                            value="<?php echo isset($_GET['edit']) ? $product['product_name'] : '' ?>" required>
+                            value="<?php echo $product['product_name'] ?? '' ?>" required>
                     </div>
 
                     <div class="mb-3">
@@ -107,7 +109,7 @@ if (isset($_POST['simpan'])) {
                             Photo
                         </label>
                         <input type="file" class="form-control" name="product_photo">
-                        <img src="<?php echo isset($_GET['edit']) ? $product['product_photo'] : '' ?>" class="w-50 mt-1">
+                        <img src="<?php echo $product['product_photo'] ?? '' ?>" class="w-50 mt-1">
                     </div>
 
                     <div class="mb-3">
@@ -115,19 +117,21 @@ if (isset($_POST['simpan'])) {
                             Product Price
                         </label>
                         <input type="number" class="form-control" name="product_price"
-                            value="<?php echo isset($_GET['edit']) ? $product['product_price'] : '' ?>" required>
+                            value="<?php echo $product ? intval($product['product_price']) : '' ?>" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="" class="form-label">
                             Product Description
                         </label>
-                        <textarea type="text" class="form-control" name="product_description" cols="30" rows="5"><?php echo isset($_GET['edit']) ? $product['product_description'] : '' ?></textarea>
+                        <textarea type="text" class="form-control" name="product_description" cols="30" rows="5">
+                            <?php echo $product['product_description'] ?? '' ?>
+                        </textarea>
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-sm mt-3"
                         name="<?php echo isset($_GET['edit']) ? 'update' : 'simpan' ?>">
-                        <?php echo isset($_GET['edit']) ? 'Edit' : 'Create' ?>
+                        <?php echo isset($_GET['edit']) ? 'Edit' : 'Add' ?>
                     </button>
 
                 </form>
