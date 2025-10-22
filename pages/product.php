@@ -26,7 +26,7 @@ if (isset($_GET['delete'])) {
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
-                    Data Product
+                    Data Products
                 </h3>
             </div>
             <div class="card-body">
@@ -49,7 +49,7 @@ if (isset($_GET['delete'])) {
                     foreach ($products as $key => $value) {
                     ?>
                         <tr>
-                            <td><?php echo $key + 1 ?></td>
+                            <td><?php echo $key += 1 ?></td>
                             <td><?php echo $value['c_name'] ?></td>
                             <td><?php echo $value['product_name'] ?></td>
                             <td>
