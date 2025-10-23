@@ -1,3 +1,16 @@
+<?php
+
+include "../config/koneksi.php";
+
+$queryCat = mysqli_query($koneksi, "SELECT * FROM categories");
+$fetchCats = mysqli_fetch_all($queryCat, MYSQLI_ASSOC);
+
+// query product
+$queryProduct = mysqli_query($koneksi, "SELECT c.category_name, p.* FROM products p LEFT JOIN categories c ON c.id = p.category_id ORDER BY id DESC");
+$fetchProducts = mysqli_fetch_all($queryProduct, MYSQLI_ASSOC);
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -25,7 +38,7 @@
             <div class="col-md-7 product-section">
 
                 <div class="mb-4">
-                    <h4 class="mb-3">
+                    <h4 class="mb-3" id="product-title">
                         <i class="fas fa-store"></i>
                         Product
                     </h4>
@@ -33,69 +46,19 @@
                 </div>
 
                 <div class="mb-4">
-                    <button class="btn btn-primary category-btn active">All Menu</button>
-                    <button class="btn btn-outline-primary category-btn">Food</button>
-                    <button class="btn btn-outline-primary category-btn">Drink</button>
-                    <button class="btn btn-outline-primary category-btn">Snack</button>
+                    <button class="btn btn-primary category-btn active" onclick="filterCategory('all', this)">All Menu</button>
+                    <?php
+                    foreach ($fetchCats as $cat) {
+                    ?>
+                        <button class="btn btn-outline-primary category-btn" onclick="filterCategory('<?php echo $cat['category_name'] ?>', this)">
+                            <?php echo $cat['category_name'] ?>
+                        </button>
+                    <?php
+                    }
+                    ?>
                 </div>
 
-                <div class="row" id="productGrid">
-
-                    <div class="col-md-4 col-sm-6">
-
-                        <div class="card product-card">
-
-                            <div class="product-img">
-                                <img src="../assets/uploads/nasi.jpeg" width="100%">
-                            </div>
-
-                            <div class="card-body">
-                                <span class="badge bg-secondary badge-category">Makanan</span>
-                                <h6 class="card-title mt-2 mb-2">Nasi Goreng</h6>
-                                <p class="card-text text-primary fw-bold">Rp. 25.000,-</p>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-4 col-sm-6">
-
-                        <div class="card product-card">
-
-                            <div class="product-img">
-                                <img src="../assets/uploads/nasi.jpeg" width="100%">
-                            </div>
-
-                            <div class="card-body">
-                                <span class="badge bg-secondary badge-category">Makanan</span>
-                                <h6 class="card-title mt-2 mb-2">Nasi Goreng</h6>
-                                <p class="card-text text-primary fw-bold">Rp. 25.000,-</p>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-4 col-sm-6">
-
-                        <div class="card product-card">
-
-                            <div class="product-img">
-                                <img src="../assets/uploads/nasi.jpeg" width="100%">
-                            </div>
-
-                            <div class="card-body">
-                                <span class="badge bg-secondary badge-category">Makanan</span>
-                                <h6 class="card-title mt-2 mb-2">Nasi Goreng</h6>
-                                <p class="card-text text-primary fw-bold">Rp. 25.000,-</p>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
+                <div class="row" id="productGrid"></div>
 
             </div>
 
@@ -165,71 +128,10 @@
     </script>
 
     <script>
-        // variable : let(paling umum digunakan), var, const
-        // php var : $, define, const
-
-        let nama = "Sunandar Sujito";
-        var name = "Sumi Sukamti";
-        const fullname = "Joko Suminten"; //nilainya tetap, tidak boleh merubah nilai 
-
-        // untuk output/print
-        // document.write();
-        // console.log({
-        //     "nama": nama,
-        //     "fullname": fullname
-        // }); //paling umum menggunakan ini
-        // alert();
-
-
-        // operator
-        let angka1 = 10;
-        let angka2 = 20;
-        console.log(angka1 + angka2);
-        console.log(angka1 - angka2);
-        console.log(angka1 / angka2);
-        console.log(angka1 * angka2);
-        console.log(angka1 % angka2);
-        console.log(angka1 ** angka2);
-
-        // operator penugasan
-        let x = 10;
-        x+=5;
-        console.log(x);
-
-        // operator pembandingan
-        let a = 2;
-        let b = 1;
-        if(a === b){
-            console.log("ya");
-        }else{
-            console.log("tidak");
-        }
-        console.log(a > b);
-        console.log(a < b);
-
-        let umur = 20;
-        let p = true;
-        if(umur >= 17 && p){
-            console.log("Boleh driving");
-        }else{
-            console.log("tidak driving");
-        }
-
-        // array
-        let buah = ['pisang', 'salak', 'semangka'];
-        console.log("buah dikeranjang:", buah);
-        console.log("saya mau buah:", buah[0]);
-        buah[1] = "Nanas";
-        console.log("buah baru dikeranjang:", buah);
-        buah.push("pepaya"); //untuk menambah nilai baru
-        console.log("Buah", buah);
-        buah.pop(); //untuk menghapus nilai array terakhir
-        console.log("buah", buah);
-        
-        
-        
-
+        const products = <?php echo json_encode($fetchProducts); ?>
     </script>
+
+    <script src="../assets/js/pos.js"></script>
 
 </body>
 
