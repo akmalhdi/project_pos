@@ -10,6 +10,9 @@ $queryProduct = mysqli_query($koneksi, "SELECT c.category_name, p.* FROM product
 $fetchProducts = mysqli_fetch_all($queryProduct, MYSQLI_ASSOC);
 
 if (isset($_GET['payment'])) {
+
+    // transaction
+    mysqli_begin_transaction($koneksi);
     $data = json_decode(file_get_contents('php://input'), true);
 
     $cart = $data['cart'];
@@ -18,28 +21,59 @@ if (isset($_GET['payment'])) {
     }, 0);
     $tax = $subtotal * 0.1;
     $orderAmounth = $subtotal + $tax;
-
     $orderCode = 'ODR-' . date('YMDHis');
     $orderDate = date("Y-m-d H:i:s");
     $orderChange = 0;
     $orderStatus = 1;
 
-    $insertOrder = mysqli_query(
-        $koneksi,
-        "INSERT INTO orders(order_code, order_date, order_amount, order_change, order_status) 
-    VALUES('$orderCode', '$orderDate', '$orderAmounth', '$orderChange', '$orderStatus')"
-    );
+    try {
+        $insertOrder = mysqli_query(
+            $koneksi,
+            "INSERT INTO orders(order_code, order_date, order_amount, order_subtotal, order_status) 
+            VALUES('$orderCode', '$orderDate', '$orderAmounth', '$subtotal', '$orderStatus')"
+        );
 
-    $idOrder = mysqli_insert_id($koneksi);
+        if(!$insertOrder){
+            throw new Exception(
+                'Insert failed to table orders', 
+                mysqli_error($koneksi));
+        }
 
-    foreach ($cart as $v) {
-        $product_id = $v['id'];
-        $qty = $v['quantity'];
-        $order_price = $v['product_price'];
-        $subtotal = $v['subtotal'];
+        $idOrder = mysqli_insert_id($koneksi);
 
-        $insertOrderDetails = mysqli_query($koneksi, "INSERT INTO order_details(order_id, product_id, qty, order_price, order_subtotal) VALUES ('$idOrder', '$product_id', '$qty', '$order_price', '$subtotal')");
+        foreach ($cart as $v) {
+            $product_id = $v['id'];
+            $qty = $v['quantity'];
+            $order_price = $v['product_price'];
+            $subtotal = $qty * $order_price;
+
+            $insertOrderDetails = mysqli_query($koneksi, "INSERT INTO order_details(order_id, product_id, qty, order_price, order_subtotal) VALUES ('$idOrder', '$product_id', '$qty', '$order_price', '$subtotal')");
+
+            if (!$insertOrderDetails) {
+                throw new Exception(
+                    'Insert failed to table order details',
+                    mysqli_error($koneksi)
+                );
+            }
+        }
+
+        mysqli_commit($koneksi);
+        $response = [
+            'status' => 'success',
+            'message' => 'Transaction success',
+            'order_id' => $idOrder,
+            'order_code' => $orderCode,
+        ];
+        echo json_encode($response);
+        die;
+
+    } catch (\Throwable $th) {
+        mysqli_rollback($koneksi);
+        $response = ['status' => 'Error', 'message' => $th->getMessage()];
+        echo json_encode($response);
+        die;
     }
+    
 }
 
 ?>

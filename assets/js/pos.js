@@ -155,15 +155,14 @@ function renderProducts(searchProduct = "") {
 let cart = [];
 function addToCart(id) {
   const product = products.find((p) => p.id == id);
-  if (!product) {
-    return;
-  }
+  // if (!product) {
+  //   return;
+  // }
 
   const existing = cart.find((item) => item.id == id);
 
   if (existing) {
-    // existing.quantity += 1; //berfungsi untuk menambah product dengan klik product
-    confirm("Product sudah ada di cart");
+    existing.quantity += 1;
   } else {
     cart.push({ ...product, quantity: 1 });
   }
@@ -277,7 +276,8 @@ document.getElementById("clearCart").addEventListener("click", function () {
 
 async function processPayment() {
   if (cart.length === 0) {
-    alert("Cart Masih Kosong");
+    alert("Cart Empty");
+    return;
   }
 
   try {
@@ -286,8 +286,20 @@ async function processPayment() {
       headers: { "Content-Type": "aplication/json" },
       body: JSON.stringify({ cart }),
     });
-  } 
-  catch (error) {}
+    
+    const data = await res.json();
+
+    if (data.status == "success") {
+      alert("transaction success");
+      window.location.href = "print.php";
+    } else{
+      alert("transaction failed", data.message);
+    }
+    
+  } catch (error) {
+    alert("transaction failed");
+    console.log("error", error);
+  }
 }
 
 // DomContentLoaded : akan meload function pertama kali
